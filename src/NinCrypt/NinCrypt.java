@@ -14,53 +14,25 @@ import java.lang.StringBuilder;
 
 public class NinCrypt {
 	
-	public static String subEncrypt(String p,String key) {
-		StringBuilder chipher = new StringBuilder();
-		String encKey = key;
-		int intKey = 0;
-		
-		//Pad
-		if (encKey.length()%2 == 1) {
-			encKey = encKey+"0";
-		}
-		
-		for (int i = 0;i<encKey.length();i++) {
-			Character c = encKey.charAt(i);
-			c = Character.reverseBytes(c);
-			intKey = intKey+c+encKey.length();
-		}
-		
-		System.out.println(intKey);
-		
-		for (int i = 0;i<1;i++) {
-			Character c = p.charAt(i);
-			Character.reverseBytes();
-			char a = (char)c+intKey;
-			chipher.append(c);
-			//System.out.print(Character.reverseBytes(c));
-		}
-		
-		return "";
-		
-	}
 	
-	public static char subCharSwap() {
-		return 'A';
-	}
+
 
 	public static void main(String[] args) {
 		Scanner input = new Scanner(System.in);
 		String toEncrypt;
 		String key;
+		SubEncryptor sub = new SubEncryptor();
 		
 		//System.out.print("toEncrypt: ");
 		//toEncrypt = input.nextLine();
 		
-		toEncrypt = "Testing";
-		key = "secret";
+		sub.setPlainText("Testing of this enc!");
+		sub.setKey("S3c|2et k3y 1s s3c|23t!!1");
+		sub.encrypt();
 		
-		System.out.println(toEncrypt+" "+key);
-		System.out.println(subEncrypt(toEncrypt,key));
+		//System.out.println(toEncrypt+" "+key);
+		System.out.println(sub.getPlainText()); 
+		System.out.println(sub.getCipherText());
 	}
 
 }
