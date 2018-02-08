@@ -26,6 +26,7 @@ public class NinCrypt {
 		//System.out.print("toEncrypt: ");
 		//toEncrypt = input.nextLine();
 		
+		//Ⲷ㺶䶶侶䖶䮶䖶ﾵ侶䞶ʶ垶䲶亶妶޶䶶垶䶶ಶ
 		sub.setPlainText("Testing of this enc!");
 		sub.setKey("S3c|2et k3y 1s s3c|23t!!1");
 		sub.encrypt();
