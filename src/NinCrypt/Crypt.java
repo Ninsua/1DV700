@@ -3,10 +3,12 @@ package NinCrypt;
 public abstract class Crypt {
 	protected String plainText;
 	protected String cipherText;
+	protected Integer key;
 	
 	public Crypt() {
 		plainText = "";
 		cipherText = "";
+		key = null;
 	}
 	
 	public void setPlainText(String p) {
@@ -15,6 +17,13 @@ public abstract class Crypt {
 	
 	public void setCipherText(String c) {
 		cipherText = c;
+	}
+	
+	public void setKey(String k) throws IllegalArgumentException {
+		if (k.isEmpty()) {
+			throw new IllegalArgumentException("Key cannot be empty!");
+		}
+		key = intHashKey(k);
 	}
 	
 	public String getPlainText() {
@@ -50,6 +59,10 @@ public abstract class Crypt {
 	
 	protected boolean hasCipherText() {
 		return !cipherText.isEmpty();
+	}
+	
+	protected boolean hasKey() {
+		return key != null;
 	}
 
 }

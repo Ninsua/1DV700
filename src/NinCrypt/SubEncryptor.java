@@ -1,7 +1,11 @@
 package NinCrypt;
 
 public class SubEncryptor extends Crypt {
-	private Integer key;
+	
+	/*
+	 * TODO
+	 * match subDecCharSwap to potentially fix the OS font issues
+	 */
 	
 	public SubEncryptor() {
 		super();
@@ -12,13 +16,6 @@ public class SubEncryptor extends Crypt {
 			throw new IllegalStateException("The encryptor is missing a property!");
 		}
 		subEncrypt();
-	}
-	
-	public void setKey(String k) throws IllegalArgumentException {
-		if (k.isEmpty()) {
-			throw new IllegalArgumentException("Key cannot be empty!");
-		}
-		key = intHashKey(k);
 	}
 	
 	private void subEncrypt() {
@@ -46,15 +43,12 @@ public class SubEncryptor extends Crypt {
 	}
 	
 	private char subEncCharSwap(char c,int key,int seed) {
-		return Character.reverseBytes((char) (c+(key-seed)));
+		return (char) (c+(key%26-seed)); // Windows is bork? maybe
+		//return Character.reverseBytes((char) (c+(key-seed)));
 	}
 	
 	private char subDecCharSwap(char c,int key,int seed) {
 		return (char) (Character.reverseBytes(c)-key+seed);
-	}
-	
-	private boolean hasKey() {
-		return key != null;
 	}
 	
 }
