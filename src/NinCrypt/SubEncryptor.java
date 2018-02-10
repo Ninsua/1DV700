@@ -4,13 +4,14 @@ public class SubEncryptor extends Crypt {
 	
 	/*
 	 * TODO
-	 * match subDecCharSwap to potentially fix the OS font issues
+	 * Implement a more secure algorithm when time allows it
 	 */
 	
 	public SubEncryptor() {
 		super();
 	}
 	
+	@Override
 	public void encrypt() throws IllegalStateException {
 		if (!hasPlainText() || !hasKey()) {
 			throw new IllegalStateException("The encryptor is missing a property!");
@@ -18,13 +19,25 @@ public class SubEncryptor extends Crypt {
 		subEncrypt();
 	}
 	
+	@Override
+	public void decrypt() throws IllegalStateException {
+		if (!hasCipherText() || !hasKey()) {
+			throw new IllegalStateException("Error: The decryptor is missing a property!");
+		}
+		subDecrypt();
+	}
+	
+	
 	private void subEncrypt() {
 		StringBuilder cipherBuilder = new StringBuilder();
+		String toEnc = plainText;
+		int toEncLength = toEnc.length();
+		int keyLength = key.length();
+
+		int[] keyIndex = keyIndex();
 		
-		for (int i = 0;i<plainText.length();i++) {
-			Character c = plainText.charAt(i);
-			char e = subEncCharSwap(c,key,plainText.length()-i);
-			cipherBuilder.append(e);
+		for (int i = 0;i<toEncLength;i++) {
+			cipherBuilder.append(subCharSwap(toEnc.charAt(i),keyIndex[i%keyLength]));
 		}
 	
 		cipherText = cipherBuilder.toString();
@@ -32,23 +45,45 @@ public class SubEncryptor extends Crypt {
 	
 	public void subDecrypt() {
 		StringBuilder plainTextBuilder = new StringBuilder();
+		String toDec = cipherText;
+		int toDecLength = toDec.length();
+		int keyLength = key.length();
+
+		int[] keyIndex = keyIndex();
 		
-		for (int i = 0;i<cipherText.length();i++) {
-			Character c = cipherText.charAt(i);
-			char d = subDecCharSwap(c,key,cipherText.length()-i);
-			plainTextBuilder.append(d);
+		for (int i = 0;i<toDecLength;i++) {
+			plainTextBuilder.append(subCharSwap(toDec.charAt(i),-keyIndex[i%keyLength]));
 		}
 		
 		plainText = plainTextBuilder.toString();
 	}
 	
-	private char subEncCharSwap(char c,int key,int seed) {
-		return (char) (c+(key%26-seed)); // Windows is bork? maybe
-		//return Character.reverseBytes((char) (c+(key-seed)));
+	//Swaps
+	private char subCharSwap(char c,int key) {
+		final int LETTERS;
+		int base,offset;
+		LETTERS = 26;
+		base = 0;
+		
+		if ('A' <= c && c <= 'Z') {
+			base = 'A';
+		}
+		else if ('a' <= c && c <= 'z') {
+			base = 'a';
+		}
+		else {
+			return c;
+		}
+		
+		offset = c-base+key;
+		
+		if (offset > LETTERS) {
+			offset = offset-LETTERS;
+		}
+		else if (offset < 0 ) {
+			offset = offset+LETTERS;
+		}
+		
+		return (char) (base+offset); 
 	}
-	
-	private char subDecCharSwap(char c,int key,int seed) {
-		return (char) (Character.reverseBytes(c)-key+seed);
-	}
-	
 }

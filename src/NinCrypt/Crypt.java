@@ -1,14 +1,25 @@
 package NinCrypt;
 
+import java.util.ArrayList;
+import java.util.AbstractMap.SimpleEntry;
+
 public abstract class Crypt {
 	protected String plainText;
 	protected String cipherText;
-	protected Integer key;
+	protected String key;
 	
 	public Crypt() {
 		plainText = "";
 		cipherText = "";
-		key = null;
+		key = "";
+	}
+	
+	//For functionality only
+	public void encrypt() throws IllegalStateException {
+	}
+	
+	//For functionality only
+	public void decrypt() throws IllegalStateException {
 	}
 	
 	public void setPlainText(String p) {
@@ -23,7 +34,7 @@ public abstract class Crypt {
 		if (k.isEmpty()) {
 			throw new IllegalArgumentException("Key cannot be empty!");
 		}
-		key = intHashKey(k);
+		key = k;
 	}
 	
 	public String getPlainText() {
@@ -40,19 +51,6 @@ public abstract class Crypt {
 		return cipherText;
 	}
 	
-	//Unsecure int hash
-	protected Integer intHashKey(String s) {
-		Integer hash = 0;
-		
-		for (int i = 0;i<s.length();i++) {
-			Character c = s.charAt(i);
-			c = (char) (c%2 == 0 ? c : Character.reverseBytes(c)-c);
-			hash = hash+c;
-		}
-		
-		return hash;
-	}
-	
 	protected boolean hasPlainText() {
 		return !plainText.isEmpty();
 	}
@@ -62,7 +60,42 @@ public abstract class Crypt {
 	}
 	
 	protected boolean hasKey() {
-		return key != null;
+		return !key.isEmpty();
 	}
+	
+	//Pads with 0s
+	protected String pad(String toPad,int charsToPad) {
+		StringBuilder padded = new StringBuilder(toPad);
+		
+		for (int i = 0;i<charsToPad;i++) {
+			padded.append(' ');
+		}
+		
+		return padded.toString();
+	}
+	
+	//Orders the key in reversed alphabetical order
+	protected int[] keyIndex() {
+		int keyLength = key.length();
+		int[] indexes = new int[keyLength];
+		
+		ArrayList<SimpleEntry<Integer,Character>> keyList = new ArrayList<SimpleEntry<Integer,Character>>();
+
+		//Add all maps to list
+		for (int i = 0; i < keyLength;i++) {
+			SimpleEntry<Integer,Character>mapToAdd = new SimpleEntry<Integer,Character>(i, key.charAt(i));
+			keyList.add(mapToAdd);
+		}
+		
+		//Sort list, reversed
+		keyList.sort((SimpleEntry<Integer,Character> a,SimpleEntry<Integer,Character> b) -> b.getValue().compareTo(a.getValue()));
+		
+		for (int i = 0; i < keyLength; i++) {
+			indexes[keyList.get(i).getKey()] = i;
+		}
+
+		return indexes;
+	}
+
 
 }

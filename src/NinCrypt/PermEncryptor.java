@@ -1,77 +1,113 @@
 package NinCrypt;
 
-import java.util.Arrays;
-
-/*
- *algo: 
- * "hash" key to int
- * use key length to determine block size
- * use key to order the blocks
- * shift odd number letters in block, depending on key (maybe reversed for where to shift)
- * 
- * decrypt: 420 reverse it brotendo
- * 
- */
-
 public class PermEncryptor extends Crypt {
 	
-	public PermEncryptor() {
+	/*
+	 * TODO
+	 * Fix the padding issues
+	 */
+	
+	public PermEncryptor()  {
 		super();
 	}
 	
+	@Override
 	public void encrypt() throws IllegalStateException {
 		if (!hasPlainText() || !hasKey()) {
-			throw new IllegalStateException("The encryptor is missing a property!");
+			throw new IllegalStateException("Error: The encryptor is missing a property!");
 		}
 		permEncrypt();
 	}
 	
-	private void permEncrypt() {
-		StringBuilder deconstructor = new StringBuilder(plainText);
-		StringBuilder cipherBuilder = new StringBuilder(plainText);
-		int columns,rows; //rows aka blockSize
-		rows = key.toString().length();
-		columns = plainText.length()/rows+1;
-		
-		char[][] plainChart = new char[columns][rows];
-		char[][] cipherChart = new char[columns][rows];
-		
-		//Building array
-		int i = 0;
-		while (deconstructor.length()>0) {
-			plainChart[i/rows][i%rows] = deconstructor.charAt(0);
-			deconstructor.deleteCharAt(0);
-			i++;
+	@Override
+	public void decrypt() throws IllegalStateException {
+		if (!hasCipherText() || !hasKey()) {
+			throw new IllegalStateException("Error: The decryptor is missing a property!");
 		}
-		
-		
-		//Move plainChart rows to cipherChart depending on KEY
-		int toRow = key;
-		for (int r = 0;r<columns;r++)  {
-			toRow = toRow;
-			System.out.print(plainChart[r]);
-			cipherChart[r] = plainChart[r];
-		}
-		
-		
-		
-		/*
-		//write out
-		for (int j = 0;j<(columns*rows);j++) {
-			System.out.print(plainChart[j/rows][j%rows]);
-			
-		}
-		*/
-		System.out.print("\n");
-		
-		System.out.println();
-
-		
-		
-		deconstructor.append("slusk");
-		System.out.println("pt length: "+plainText.length()+" blocksize: "+rows);
-		
-		cipherText = cipherBuilder.toString();//"wananananananana";
+		permDecrypt();
 	}
+	
+	private void permEncrypt() {
+		StringBuilder cipherBuilder = new StringBuilder();
+		String toEnc = plainText;
+		int toEncLength = toEnc.length();
+		int keyLength = key.length();
+		
+		//Check if padding is necessary
+		if (toEncLength%keyLength != 0) {
+			int charsToPad = toEncLength-(toEncLength%keyLength)+keyLength;
+			toEnc = pad(toEnc,charsToPad);
+			toEncLength = toEnc.length();
+		}
 
+		int columns = keyLength;
+		Double d = Math.ceil(Double.valueOf(Double.valueOf(toEncLength)/Double.valueOf(columns))); //Round upwards too make sure everything fits in the array
+		int rows = d.intValue();
+		char[][] rowArray = new char[rows][columns];
+		char[][] columnArray = new char[columns][rows];
+		char[][] cipherArray = new char[columns][rows];
+		int[] keyIndex = keyIndex();
+		
+		//Building the row based array;
+		for (int i=0; i < toEncLength; i++) {
+			rowArray[i/columns][i%columns] = toEnc.charAt(i);
+		} 
+
+		//Building the column based array;
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < columns; j++) {
+				columnArray[j][i] = rowArray[i][j];
+			}
+		}
+		
+		//Building the cipherarray
+		for (int i = 0; i < columns; i++) {
+			for (int j = 0; j < rows; j++) {
+				cipherArray[keyIndex[i]][j] = columnArray[i][j];
+			}
+		}
+
+		for (int i = 0; i < toEncLength; i++) {
+			cipherBuilder.append(cipherArray[i/rows][i%rows]);
+		}
+
+		cipherText = cipherBuilder.toString();
+	}
+	
+	public void permDecrypt() {
+		StringBuilder plainBuilder = new StringBuilder();
+		String toDec = cipherText;
+		int toDecLength = toDec.length();
+		int keyLength = key.length();
+		
+		Double d = Math.ceil(Double.valueOf(Double.valueOf(toDecLength)/Double.valueOf(keyLength))); //Round upwards too make sure everything fits in the array
+		int columns = d.intValue();;
+		int rows = keyLength;
+		char[][] rowArray = new char[rows][columns];
+		char[][] columnArray = new char[columns][rows];
+		char[][] plainArray = new char[columns][rows];
+		int[] keyIndex = keyIndex();
+		
+		//Building the row based array;
+		for (int i = 0; i < toDecLength; i++) {
+			rowArray[i/columns][i%columns] = toDec.charAt(i);
+		}
+		
+		//Building the column based array;
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < columns; j++)
+				columnArray[j][i] = rowArray[i][j];
+		
+		//Building the plainArray
+		for (int i = 0; i < columns; i++)
+			for (int j = 0; j < rows; j++)
+				plainArray[i][j] = columnArray[i][keyIndex[j]];
+		
+		for (int i = 0; i < toDecLength; i++) {
+			plainBuilder.append(plainArray[i/rows][i%rows]);
+		}
+		
+		
+		plainText = plainBuilder.toString();
+	}
 }
