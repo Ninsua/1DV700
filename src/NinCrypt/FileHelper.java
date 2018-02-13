@@ -1,10 +1,13 @@
 package NinCrypt;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Scanner;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 public class FileHelper {
 	
@@ -16,40 +19,40 @@ public class FileHelper {
 	}
 	
 	public static String readFile(File f) throws IllegalStateException {
-		Scanner fileReader;
+		BufferedReader fileReader;
 		StringBuilder input = new StringBuilder();
 		
 		try {
-			fileReader = new Scanner(f);	
+			fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF8"));	
+			
+			if (!f.canRead()) {
+				fileReader.close();
+				throw new IllegalStateException("Error: Cannot read file!");
+			}
+			
+			
+			while (fileReader.ready()) {
+				input.append((char) fileReader.read());
+			}
+			
+			fileReader.close();
 		}
-		catch (FileNotFoundException e) {
+		catch (IOException e) {
 			throw new IllegalStateException("Error: File not found!");
 		}
-		
-		if (!f.canRead()) {
-			fileReader.close();
-			throw new IllegalStateException("Error: Cannot read file!");
-		}
-		
-		fileReader.useDelimiter("");
-		while (fileReader.hasNext()) {
-			input.append(fileReader.next());
-		}
-		
-		fileReader.close();
 		
 		return input.toString();
 	}
 	
 	public static void writeFile(File f,String input) throws IllegalStateException  {
-		FileWriter writer;
+		OutputStreamWriter writer;
 		
 		if (!f.canWrite()) {
 			throw new IllegalStateException("Error: Cannot write to file!");
 		}
 		
 		try {
-			writer = new FileWriter(f);
+			writer = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
 			
 			for (int i = 0;i<input.length();i++) {
 				writer.write(input.charAt(i));

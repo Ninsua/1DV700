@@ -51,9 +51,19 @@ public class SubEncryptor extends Crypt {
 
 		int[] keyIndex = keyIndex();
 		
-		for (int i = 0;i<toDecLength;i++) {
-			plainTextBuilder.append(subCharSwap(toDec.charAt(i),-keyIndex[i%keyLength]));
+		if (keyLength == 1 && Character.isDigit(key.charAt(0))) {
+			int simpleKey = Integer.parseInt(key);
+			for (int i = 0;i<toDecLength;i++) {
+				plainTextBuilder.append(subCharSwap(toDec.charAt(i),-simpleKey));
+			}
 		}
+		
+		else {
+			for (int i = 0;i<toDecLength;i++) {
+				plainTextBuilder.append(subCharSwap(toDec.charAt(i),-keyIndex[i%keyLength]));
+			}
+		}
+
 		
 		plainText = plainTextBuilder.toString();
 	}
